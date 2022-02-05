@@ -2,6 +2,9 @@ import requests
 import tweepy
 from requests.auth import HTTPBasicAuth
 
+from server.enums.TweetField import TweetField
+from server.twitter.TwitterClient import TwitterClient
+from server.twitter.TwitterSearcher import TwitterSearcher
 from server.util.EnvironmentReader import EnvironmentReader
 
 """
@@ -23,24 +26,24 @@ if __name__ == "__main__":
     #                        access_token_secret=accessTokenSecret)
     # response = client.create_tweet(text="This is my first tweet")
 
-    client = tweepy.Client(bearer_token=bearerToken)
-    tweetFields = ['in_reply_to_user_id', 'public_metrics', 'conversation_id']
+    client = TwitterClient.getClient()
+    tweetFields = [TweetField.IN_REPLY_TO_USER_ID, TweetField.PUBLIC_METRICS, TweetField.CONVERSATION_ID]
     query = "ratio lang:en"
 
-    tweets = client.search_recent_tweets(query=query, max_results=10, tweet_fields=tweetFields)
+    tweets = TwitterSearcher.getRecentTweets(query, tweetFields, 10)
 
-    for replyTweet in tweets.data:
-        if replyTweet['in_reply_to_user_id'] is not None:
-            # this is a reply, get the tweet it is replying to
-            parentTweet = client.get_tweet(id=replyTweet['conversation_id'], tweet_fields=tweetFields)
-            if parentTweet is not None and parentTweet[0] is not None:
-                print("------")
-                print("PARENT:")
-                print(parentTweet[0].data["text"])
-                print(parentTweet[0].data["public_metrics"]["like_count"])
-                print("REPLY:")
-                print(replyTweet.text)
-                print(replyTweet.data["public_metrics"]["like_count"])
-                print("-----\n\n")
-            else:
-                print("ERROR")
+    # for replyTweet in tweets.data:
+    #     if replyTweet['in_reply_to_user_id'] is not None:
+    #         # this is a reply, get the tweet it is replying to
+    #         parentTweet = client.get_tweet(id=replyTweet['conversation_id'], tweet_fields=tweetFields)
+    #         if parentTweet is not None and parentTweet[0] is not None:
+    #             print("------")
+    #             print("PARENT:")
+    #             print(parentTweet[0].data["text"])
+    #             print(parentTweet[0].data["public_metrics"]["like_count"])
+    #             print("REPLY:")
+    #             print(replyTweet.text)
+    #             print(replyTweet.data["public_metrics"]["like_count"])
+    #             print("-----\n\n")
+    #         else:
+    #             print("ERROR")
