@@ -20,6 +20,11 @@ class ReplyTweetRepository:
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at
                                         FROM {schema}.{table}
         """
+        self.__getAllReplyTweetsAtLeastNDaysOldQuery = """
+                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at
+                                        FROM {schema}.{table}
+                                        WHERE tweeted_at < (NOW() AT TIME ZONE 'utc') - INTERVAL '{numberOfDays} day'
+        """
 
     def __connect(self):
         self.__conn = psycopg2.connect(
@@ -53,6 +58,18 @@ class ReplyTweetRepository:
             cursor.execute(
                 self.__getAllReplyTweetsQuery.format(schema=self.__schema,
                                                      table=self.__table)
+            )
+            replyTweetResults = cursor.fetchall()
+        self.__close()
+        return self.__objectifyReplyTweetList(replyTweetResults)
+
+    def getAllReplyTweetsAtLeastNDaysOld(self, numberOfDays: int):
+        self.__connect()
+        with self.__conn.cursor() as cursor:
+            cursor.execute(
+                self.__getAllReplyTweetsAtLeastNDaysOldQuery.format(schema=self.__schema,
+                                                                    table=self.__table,
+                                                                    numberOfDays=numberOfDays)
             )
             replyTweetResults = cursor.fetchall()
         self.__close()
