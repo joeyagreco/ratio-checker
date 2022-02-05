@@ -27,8 +27,7 @@ if __name__ == "__main__":
     tweetFields = ['in_reply_to_user_id', 'public_metrics', 'conversation_id']
     query = "ratio lang:en"
 
-    tweets = client.search_recent_tweets(query=query, max_results=100,
-                                         tweet_fields=tweetFields)
+    tweets = client.search_recent_tweets(query=query, max_results=10, tweet_fields=tweetFields)
 
     for replyTweet in tweets.data:
         if replyTweet['in_reply_to_user_id'] is not None:
