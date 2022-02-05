@@ -5,6 +5,7 @@ from requests.auth import HTTPBasicAuth
 from server.enums.TweetField import TweetField
 from server.twitter.TwitterClient import TwitterClient
 from server.twitter.TwitterSearcher import TwitterSearcher
+from server.twitter.TwitterTweeter import TwitterTweeter
 from server.util.EnvironmentReader import EnvironmentReader
 
 """
@@ -14,19 +15,9 @@ Search Queries: https://github.com/twitterdev/getting-started-with-the-twitter-a
 """
 
 if __name__ == "__main__":
-    apiKey = EnvironmentReader.get("API_KEY")
-    apiKeySecret = EnvironmentReader.get("API_KEY_SECRET")
-    bearerToken = EnvironmentReader.get("BEARER_TOKEN")
-    accessToken = EnvironmentReader.get("ACCESS_TOKEN")
-    accessTokenSecret = EnvironmentReader.get("ACCESS_TOKEN_SECRET")
+    # response = TwitterTweeter.createTweet("this is a test tweet")
+    # print(response)
 
-    # client = tweepy.Client(consumer_key=apiKey,
-    #                        consumer_secret=apiKeySecret,
-    #                        access_token=accessToken,
-    #                        access_token_secret=accessTokenSecret)
-    # response = client.create_tweet(text="This is my first tweet")
-
-    client = TwitterClient.getClient()
     tweetFields = [TweetField.IN_REPLY_TO_USER_ID, TweetField.PUBLIC_METRICS, TweetField.CONVERSATION_ID]
     query = "ratio lang:en"
 
