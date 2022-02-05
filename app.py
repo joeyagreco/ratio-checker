@@ -1,9 +1,4 @@
-import requests
-import tweepy
-from requests.auth import HTTPBasicAuth
-
 from server.enums.TweetField import TweetField
-from server.repositories.ReplyTweetRepository import ReplyTweetRepository
 from server.twitter.TwitterSearcher import TwitterSearcher
 
 """
