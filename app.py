@@ -3,6 +3,7 @@ import tweepy
 from requests.auth import HTTPBasicAuth
 
 from server.enums.TweetField import TweetField
+from server.repositories.ReplyTweetRepository import ReplyTweetRepository
 from server.twitter.TwitterSearcher import TwitterSearcher
 
 """
@@ -33,6 +34,7 @@ if __name__ == "__main__":
             print(tweet.text)
             print(tweet.data["public_metrics"]["like_count"])
             print(tweet.data["created_at"])
+            print(tweet.id)
             print("-----\n\n")
         else:
             print("ERROR")
