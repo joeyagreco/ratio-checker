@@ -31,6 +31,7 @@ if __name__ == "__main__":
     query = "ratio lang:en"
 
     tweets = TwitterSearcher.getRecentTweets(query, tweetFields, 10)
+    print(tweets)
 
     # for replyTweet in tweets.data:
     #     if replyTweet['in_reply_to_user_id'] is not None:

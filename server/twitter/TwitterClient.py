@@ -1,11 +1,11 @@
 import tweepy
 from tweepy import Client
 
-from server.util.EnvironmentReader import EnvironmentReader
+from server.auth.TwitterAuth import TwitterAuth
 
 
 class TwitterClient:
-    bearerToken = EnvironmentReader.get("BEARER_TOKEN")
+    bearerToken = TwitterAuth.bearerToken
 
     @classmethod
     def getClient(cls) -> Client:
