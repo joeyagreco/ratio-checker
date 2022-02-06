@@ -3,6 +3,7 @@ from typing import List, Optional
 import psycopg2
 from psycopg2.extras import execute_values
 
+from server.decorators.utilDecorators import timer
 from server.models.ReplyTweet import ReplyTweet
 from server.util.EnvironmentReader import EnvironmentReader
 
@@ -35,6 +36,10 @@ class ReplyTweetRepository:
                                         SELECT COUNT(*) FROM {schema}.{table}
         """
 
+        self.__getAllTweetIdsQuery = """
+                                        SELECT tweet_id FROM {schema}.{table}
+        """
+
     def __connect(self):
         self.__conn = psycopg2.connect(
             host=EnvironmentReader.get("DB_HOST"),
@@ -61,6 +66,7 @@ class ReplyTweetRepository:
             replyTweetList.append(self.__objectifyReplyTweet(replyTweetResult))
         return replyTweetList
 
+    @timer
     def getAllReplyTweets(self):
         self.__connect()
         with self.__conn.cursor() as cursor:
@@ -72,6 +78,7 @@ class ReplyTweetRepository:
         self.__close()
         return self.__objectifyReplyTweetList(replyTweetResults)
 
+    @timer
     def getAllReplyTweetsAtLeastNDaysOld(self, numberOfDays: int):
         self.__connect()
         with self.__conn.cursor() as cursor:
@@ -84,6 +91,7 @@ class ReplyTweetRepository:
         self.__close()
         return self.__objectifyReplyTweetList(replyTweetResults)
 
+    @timer
     def addReplyTweets(self, replyTweetList: List[ReplyTweet]) -> List[ReplyTweet]:
 
         try:
@@ -104,6 +112,7 @@ class ReplyTweetRepository:
             print(errorCode)
             raise e
 
+    @timer
     def getNumberOfRows(self):
         self.__connect()
         with self.__conn.cursor() as cursor:
@@ -111,6 +120,18 @@ class ReplyTweetRepository:
                 self.__getNumberOfRowsQuery.format(schema=self.__schema,
                                                    table=self.__table)
             )
-            replyTweetResults = cursor.fetchone()
+            result = cursor.fetchone()
         self.__close()
-        return replyTweetResults[0]
+        return result[0]
+
+    @timer
+    def getAllTweetIds(self) -> List[str]:
+        self.__connect()
+        with self.__conn.cursor() as cursor:
+            cursor.execute(
+                self.__getAllTweetIdsQuery.format(schema=self.__schema,
+                                                  table=self.__table)
+            )
+            idResults = cursor.fetchall()
+        self.__close()
+        return [idResult[0] for idResult in idResults]
