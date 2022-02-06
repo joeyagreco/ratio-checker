@@ -40,6 +40,12 @@ class ReplyTweetRepository:
                                         SELECT tweet_id FROM {schema}.{table}
         """
 
+        self.__getFirstNReplyTweetsQuery = """
+                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at
+                                        FROM {schema}.{table}
+                                        LIMIT {limit}
+        """
+
     def __connect(self):
         self.__conn = psycopg2.connect(
             host=EnvironmentReader.get("DB_HOST"),
@@ -135,3 +141,16 @@ class ReplyTweetRepository:
             idResults = cursor.fetchall()
         self.__close()
         return [idResult[0] for idResult in idResults]
+
+    @timer
+    def getFirstNReplyTweets(self, numberOfReplyTweetsToGet: int):
+        self.__connect()
+        with self.__conn.cursor() as cursor:
+            cursor.execute(
+                self.__getFirstNReplyTweetsQuery.format(schema=self.__schema,
+                                                        table=self.__table,
+                                                        limit=numberOfReplyTweetsToGet)
+            )
+            replyTweetResults = cursor.fetchall()
+        self.__close()
+        return self.__objectifyReplyTweetList(replyTweetResults)
