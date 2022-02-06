@@ -11,6 +11,7 @@ class TweetField(Enum):
     CREATED_AT = auto()
     IN_REPLY_TO_USER_ID = auto()
     PUBLIC_METRICS = auto()
+    REFERENCED_TWEETS = auto()
 
     @staticmethod
     def normalized(tweetField: TweetField) -> str:

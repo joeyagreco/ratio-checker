@@ -48,8 +48,8 @@ class RatioService:
             numberOfRepliesToHarvest = numberOfRepliesToHarvest if numberOfRepliesToHarvest >= self.__TWITTER_MINIMUM_AMOUNT else self.__TWITTER_MINIMUM_AMOUNT
 
         # info we are interested in for "ratio" tweets
-        tweetFields = [TweetField.IN_REPLY_TO_USER_ID, TweetField.PUBLIC_METRICS, TweetField.CONVERSATION_ID,
-                       TweetField.CREATED_AT]
+        tweetFields = [TweetField.CONVERSATION_ID, TweetField.CREATED_AT, TweetField.IN_REPLY_TO_USER_ID,
+                       TweetField.PUBLIC_METRICS, TweetField.REFERENCED_TWEETS]
         # query info: https://developer.twitter.com/en/docs/twitter-api/enterprise/rules-and-filtering/operators-by-product
         query = "ratio lang:en is:reply"
 
@@ -64,7 +64,12 @@ class RatioService:
 
         for tweet in ratioReplyTweets.data:
             # get the tweet it is replying to
-            parentTweet = TwitterSearcher.getTweet(tweet["conversation_id"], tweetFields)[0]
+            parentTweetId = None
+            for referencedTweet in tweet.data["referenced_tweets"]:
+                # find the "replied_to" entry
+                if referencedTweet["type"] == "replied_to":
+                    parentTweetId = referencedTweet["id"]
+            parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
             if parentTweet is not None and str(tweet.id) not in savedTweetIds:
                 validReplyTweets.append(ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
 
