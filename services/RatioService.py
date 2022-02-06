@@ -9,6 +9,7 @@ class RatioService:
     def __init__(self):
         self.__replyTweetRepository = ReplyTweetRepository()
         self.__MAX_ROWS_TO_SAVE = 100
+        self.__TWITTER_MINIMUM_AMOUNT = 10
 
     def harvestRatioReplies(self, numberOfRepliesToHarvest: int) -> bool:
         """
@@ -18,12 +19,14 @@ class RatioService:
         # first, check if we have hit the limit of total tweet replies we want to save
         # (or are within 9, in which case we will stop since we must grab at least 10 tweets with each query)
         numberOfRows = self.__replyTweetRepository.getNumberOfRows()
-        if numberOfRows + 9 >= self.__MAX_ROWS_TO_SAVE:
+        if numberOfRows + (self.__TWITTER_MINIMUM_AMOUNT - 1) >= self.__MAX_ROWS_TO_SAVE:
             return False
         else:
             # we'll adjust the number of reply tweets to retrieve if numberOfRepliesToHarvest will put us over the MAX_ROWS_TO_SAVE
             if numberOfRows + numberOfRepliesToHarvest > self.__MAX_ROWS_TO_SAVE:
                 numberOfRepliesToHarvest = self.__MAX_ROWS_TO_SAVE - numberOfRows
+            # make sure we always have at least 10 (Twitter's minimum) replies to harvest
+            numberOfRepliesToHarvest = numberOfRepliesToHarvest if numberOfRepliesToHarvest >= self.__TWITTER_MINIMUM_AMOUNT else self.__TWITTER_MINIMUM_AMOUNT
 
         # info we are interested in for "ratio" tweets
         tweetFields = [TweetField.IN_REPLY_TO_USER_ID, TweetField.PUBLIC_METRICS, TweetField.CONVERSATION_ID,
