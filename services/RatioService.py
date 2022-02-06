@@ -8,11 +8,17 @@ class RatioService:
 
     def __init__(self):
         self.__replyTweetRepository = ReplyTweetRepository()
+        self.__MAX_ROWS_TO_SAVE = 50
 
-    def harvestRatioReplies(self, numberOfRepliesToHarvest: int):
+    def harvestRatioReplies(self, numberOfRepliesToHarvest: int) -> bool:
         """
         This method will "harvest" the given number of tweets that are replies and save them to a database.
+        Returns a boolean of whether any ratio replies were harvested
         """
+        # first, check if we have hit the limit of total tweet replies we want to save
+        if self.__replyTweetRepository.getNumberOfRows() >= self.__MAX_ROWS_TO_SAVE:
+            return False
+
         # info we are interested in for "ratio" tweets
         tweetFields = [TweetField.IN_REPLY_TO_USER_ID, TweetField.PUBLIC_METRICS, TweetField.CONVERSATION_ID,
                        TweetField.CREATED_AT]
@@ -20,7 +26,6 @@ class RatioService:
         query = "ratio lang:en is:reply"
 
         # get tweets from Twitter
-        # TODO: halt this method if there are a certain amount of tweets already in the database
         ratioReplyTweets = TwitterSearcher.getRecentTweets(query, tweetFields, numberOfRepliesToHarvest)
 
         # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
@@ -38,3 +43,4 @@ class RatioService:
 
         # add all valid reply tweets to a database
         self.__replyTweetRepository.addReplyTweets(validReplyTweets)
+        return True

@@ -31,6 +31,9 @@ class ReplyTweetRepository:
                                         VALUES %s
                                         RETURNING id, tweet_id, parent_tweet_id, tweeted_at
         """
+        self.__getNumberOfRowsQuery = """
+                                        SELECT COUNT(*) FROM {schema}.{table}
+        """
 
     def __connect(self):
         self.__conn = psycopg2.connect(
@@ -100,3 +103,14 @@ class ReplyTweetRepository:
             errorCode = e.pgcode
             print(errorCode)
             raise e
+
+    def getNumberOfRows(self):
+        self.__connect()
+        with self.__conn.cursor() as cursor:
+            cursor.execute(
+                self.__getNumberOfRowsQuery.format(schema=self.__schema,
+                                                   table=self.__table)
+            )
+            replyTweetResults = cursor.fetchone()
+        self.__close()
+        return replyTweetResults[0]
