@@ -20,6 +20,7 @@ class RatioService:
         query = "ratio lang:en is:reply"
 
         # get tweets from Twitter
+        # TODO: halt this method if there are a certain amount of tweets already in the database
         ratioReplyTweets = TwitterSearcher.getRecentTweets(query, tweetFields, numberOfRepliesToHarvest)
 
         # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
