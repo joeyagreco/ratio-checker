@@ -12,8 +12,8 @@ class ReplyTweetRepository:
 
     def __init__(self):
         self.__conn = None
-        self.__schema = "ratio_checker"
-        self.__table = "reply_tweet"
+        self.__SCHEMA = "ratio_checker"
+        self.__TABLE = "reply_tweet"
         # POSTGRESQL ERROR CODES
         # DOCUMENTATION: https://www.postgresql.org/docs/current/errcodes-appendix.html#ERRCODES-TABLE
         self.__UNIQUE_VIOLATION_ERROR_CODE = "23505"
@@ -44,6 +44,11 @@ class ReplyTweetRepository:
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at
                                         FROM {schema}.{table}
                                         LIMIT {limit}
+        """
+
+        self.__deleteReplyTweetsByIdsQuery = """
+                                        DELETE FROM {schema}.{table}
+                                        WHERE id in %s
         """
 
     def __connect(self):
@@ -77,8 +82,8 @@ class ReplyTweetRepository:
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
-                self.__getAllReplyTweetsQuery.format(schema=self.__schema,
-                                                     table=self.__table)
+                self.__getAllReplyTweetsQuery.format(schema=self.__SCHEMA,
+                                                     table=self.__TABLE)
             )
             replyTweetResults = cursor.fetchall()
         self.__close()
@@ -89,8 +94,8 @@ class ReplyTweetRepository:
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
-                self.__getAllReplyTweetsAtLeastNDaysOldQuery.format(schema=self.__schema,
-                                                                    table=self.__table,
+                self.__getAllReplyTweetsAtLeastNDaysOldQuery.format(schema=self.__SCHEMA,
+                                                                    table=self.__TABLE,
                                                                     numberOfDays=numberOfDays)
             )
             replyTweetResults = cursor.fetchall()
@@ -103,8 +108,8 @@ class ReplyTweetRepository:
         try:
             self.__connect()
             with self.__conn.cursor() as cursor:
-                addReplyTweetsQuery = self.__addReplyTweetsQuery.format(schema=self.__schema,
-                                                                        table=self.__table)
+                addReplyTweetsQuery = self.__addReplyTweetsQuery.format(schema=self.__SCHEMA,
+                                                                        table=self.__TABLE)
                 allReplyTweets = [(rt.tweetId, rt.parentTweetId, rt.tweetedAt) for rt in replyTweetList]
                 execute_values(cursor, addReplyTweetsQuery, allReplyTweets)
                 self.__conn.commit()
@@ -123,8 +128,8 @@ class ReplyTweetRepository:
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
-                self.__getNumberOfRowsQuery.format(schema=self.__schema,
-                                                   table=self.__table)
+                self.__getNumberOfRowsQuery.format(schema=self.__SCHEMA,
+                                                   table=self.__TABLE)
             )
             result = cursor.fetchone()
         self.__close()
@@ -135,8 +140,8 @@ class ReplyTweetRepository:
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
-                self.__getAllTweetIdsQuery.format(schema=self.__schema,
-                                                  table=self.__table)
+                self.__getAllTweetIdsQuery.format(schema=self.__SCHEMA,
+                                                  table=self.__TABLE)
             )
             idResults = cursor.fetchall()
         self.__close()
@@ -147,10 +152,20 @@ class ReplyTweetRepository:
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
-                self.__getFirstNReplyTweetsQuery.format(schema=self.__schema,
-                                                        table=self.__table,
+                self.__getFirstNReplyTweetsQuery.format(schema=self.__SCHEMA,
+                                                        table=self.__TABLE,
                                                         limit=numberOfReplyTweetsToGet)
             )
             replyTweetResults = cursor.fetchall()
         self.__close()
         return self.__objectifyReplyTweetList(replyTweetResults)
+
+    @timer
+    def deleteReplyTweetsByIds(self, ids: List[int]):
+        self.__connect()
+        with self.__conn.cursor() as cursor:
+            deleteReplyTweetsQuery = self.__deleteReplyTweetsByIdsQuery.format(schema=self.__SCHEMA,
+                                                                               table=self.__TABLE)
+            execute_values(cursor, deleteReplyTweetsQuery, (ids,))
+            self.__conn.commit()
+            self.__close()
