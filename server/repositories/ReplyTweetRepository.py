@@ -14,6 +14,7 @@ class ReplyTweetRepository:
         self.__conn = None
         self.__SCHEMA = "ratio_checker"
         self.__TABLE = "reply_tweet"
+        self.__ALL = "all"
         # POSTGRESQL ERROR CODES
         # DOCUMENTATION: https://www.postgresql.org/docs/current/errcodes-appendix.html#ERRCODES-TABLE
         self.__UNIQUE_VIOLATION_ERROR_CODE = "23505"
@@ -26,6 +27,7 @@ class ReplyTweetRepository:
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at
                                         FROM {schema}.{table}
                                         WHERE tweeted_at < (NOW() AT TIME ZONE 'utc') - INTERVAL '{numberOfDays} day'
+                                        LIMIT {limit}
         """
         self.__addReplyTweetsQuery = """
                                         INSERT INTO {schema}.{table} (tweet_id, parent_tweet_id, tweeted_at)
@@ -90,13 +92,21 @@ class ReplyTweetRepository:
         return self.__objectifyReplyTweetList(replyTweetResults)
 
     @timer
-    def getAllReplyTweetsAtLeastNDaysOld(self, numberOfDays: int):
+    def getAllReplyTweetsAtLeastNDaysOld(self, numberOfDays: int, **kwargs):
+        """
+        KWARGS:
+            limit [int]: Get the first [limit] number of rows that match these criteria.
+        """
+        limit = kwargs.pop("limit", None)
+        if limit is None:
+            limit = self.__ALL
         self.__connect()
         with self.__conn.cursor() as cursor:
             cursor.execute(
                 self.__getAllReplyTweetsAtLeastNDaysOldQuery.format(schema=self.__SCHEMA,
                                                                     table=self.__TABLE,
-                                                                    numberOfDays=numberOfDays)
+                                                                    numberOfDays=numberOfDays,
+                                                                    limit=limit)
             )
             replyTweetResults = cursor.fetchall()
         self.__close()
