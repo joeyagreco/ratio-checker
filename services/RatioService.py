@@ -20,6 +20,11 @@ class RatioService:
         self.__BASELINE_TWEET_SCORE = 3
         # the amount of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
         self.__TWEET_SCORE_BUFFER = 5
+        # the percentage of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
+        # ex: 1 = 1%, 15 = 15%, etc...
+        self.__TWEET_SCORE_BUFFER_PERCENT = 10
+        # this is used to prevent division by 0 without affecting the overall score in calculations
+        self.__VERY_SMALL_NUMBER = 0.000000000000000000000001
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
 
@@ -100,18 +105,21 @@ class RatioService:
             actualParentTweet = TwitterSearcher.getTweet(replyTweet.parentTweetId, tweetFields).data
             # make sure both tweets still exist
             if actualReplyTweet is not None and actualParentTweet is not None:
-                # check if the parent tweet has a high enough score to be considered for ratios
+                # check if the tweet scores differ enough to qualify for a serve from the bot
                 parentTweetScore = self.__getTweetScore(actualParentTweet)
                 replyTweetScore = self.__getTweetScore(actualReplyTweet)
                 if parentTweetScore >= self.__BASELINE_TWEET_SCORE and abs(
-                        parentTweetScore - replyTweetScore) >= self.__TWEET_SCORE_BUFFER:
+                        parentTweetScore - replyTweetScore) >= self.__TWEET_SCORE_BUFFER and (
+                        abs(parentTweetScore - replyTweetScore) / (
+                        (replyTweetScore * 100) + self.__VERY_SMALL_NUMBER)) >= self.__TWEET_SCORE_BUFFER_PERCENT:
                     # check if the reply has a higher score than its parent
                     if replyTweetScore > parentTweetScore:
                         # this is a ratio
-                        tweetText = self.__SUCCESSFUL_RATIO_TEXT
+                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nYour score of {replyTweetScore} beat the parent tweet score of {parentTweetScore}."
                     else:
                         # this is not a ratio
                         tweetText = self.__FAILED_RATIO_TEXT
+                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nYour score of {replyTweetScore} did not beat the parent tweet score of {parentTweetScore}."
                     # respond with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                 else:
