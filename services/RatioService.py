@@ -1,5 +1,6 @@
 from tweepy import Tweet
 
+from server.enums.RatioGrade import RatioGrade
 from server.enums.TweetField import TweetField
 from server.models.ReplyTweet import ReplyTweet
 from server.repositories.ReplyTweetRepository import ReplyTweetRepository
@@ -108,18 +109,16 @@ class RatioService:
                 # check if the tweet scores differ enough to qualify for a serve from the bot
                 parentTweetScore = self.__getTweetScore(actualParentTweet)
                 replyTweetScore = self.__getTweetScore(actualReplyTweet)
-                if parentTweetScore >= self.__BASELINE_TWEET_SCORE and abs(
-                        parentTweetScore - replyTweetScore) >= self.__TWEET_SCORE_BUFFER and (
-                        abs(parentTweetScore - replyTweetScore) / (
-                        (replyTweetScore * 100) + self.__VERY_SMALL_NUMBER)) >= self.__TWEET_SCORE_BUFFER_PERCENT:
-                    # check if the reply has a higher score than its parent
-                    if replyTweetScore > parentTweetScore:
+                # get the ratio grade and respond accordingly
+                ratioGrade = self.__getRatioGrade(replyTweetScore, parentTweetScore)
+                if ratioGrade in RatioGrade.allValidGrades():
+                    # check if the reply was a ratio
+                    if ratioGrade in RatioGrade.allPassingGrades():
                         # this is a ratio
-                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nYour score of {replyTweetScore} beat the parent tweet score of {parentTweetScore}."
+                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nRatio Grade: {ratioGrade.name}"
                     else:
                         # this is not a ratio
-                        tweetText = self.__FAILED_RATIO_TEXT
-                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nYour score of {replyTweetScore} did not beat the parent tweet score of {parentTweetScore}."
+                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nRatio Grade: {ratioGrade.name}"
                     # respond with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                 else:
@@ -127,3 +126,38 @@ class RatioService:
 
             else:
                 print("CANNOT SERVE: TWEET/S DELETED")
+
+    def __getRatioGrade(self, replyTweetScore: int, parentTweetScore: int) -> RatioGrade:
+        if parentTweetScore < self.__BASELINE_TWEET_SCORE \
+                or abs(parentTweetScore - replyTweetScore) < self.__TWEET_SCORE_BUFFER:
+            return RatioGrade.UNGRADABLE
+        if replyTweetScore < parentTweetScore:
+            return RatioGrade.F
+
+        ratioPercentage = (replyTweetScore / (parentTweetScore + self.__VERY_SMALL_NUMBER)) - 1
+        if ratioPercentage >= 100:
+            return RatioGrade.A_PLUS
+        elif ratioPercentage >= 50:
+            return RatioGrade.A
+        elif ratioPercentage >= 25:
+            return RatioGrade.A_MINUS
+        elif ratioPercentage >= 10:
+            return RatioGrade.B_PLUS
+        elif ratioPercentage >= 5:
+            return RatioGrade.B
+        elif ratioPercentage >= 3:
+            return RatioGrade.B_MINUS
+        elif ratioPercentage >= 2:
+            return RatioGrade.C_PLUS
+        elif ratioPercentage >= 1:
+            return RatioGrade.C
+        elif ratioPercentage >= 0.9:
+            return RatioGrade.C_MINUS
+        elif ratioPercentage >= 0.8:
+            return RatioGrade.D_PLUS
+        elif ratioPercentage >= 0.7:
+            return RatioGrade.D
+        elif ratioPercentage >= 0.6:
+            return RatioGrade.D_MINUS
+        else:
+            return RatioGrade.UNGRADABLE
