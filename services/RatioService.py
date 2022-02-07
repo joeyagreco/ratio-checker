@@ -40,16 +40,16 @@ class RatioService:
         return (tweet.data["public_metrics"]["like_count"] * self.__LIKE_WEIGHT) + (
                 tweet.data["public_metrics"]["retweet_count"] * self.__RETWEET_WEIGHT)
 
-    def harvestRatioReplies(self, numberOfRepliesToHarvest: int) -> bool:
+    def harvestRatioReplies(self, numberOfRepliesToHarvest: int) -> int:
         """
         This method will "harvest" the given number of tweets that are replies and save them to a database.
-        Returns a boolean of whether any ratio replies were harvested
+        Returns how many ratio replies were harvested
         """
         # first, check if we have hit the limit of total tweet replies we want to save
         # (or are within 9, in which case we will stop since we must grab at least 10 tweets with each query)
         numberOfRows = self.__replyTweetRepository.getNumberOfRows()
         if numberOfRows + (self.__TWITTER_MINIMUM_AMOUNT - 1) >= self.__MAX_ROWS_TO_SAVE:
-            return False
+            return 0
         else:
             # we'll adjust the number of reply tweets to retrieve if numberOfRepliesToHarvest will put us over the MAX_ROWS_TO_SAVE
             if numberOfRows + numberOfRepliesToHarvest > self.__MAX_ROWS_TO_SAVE:
@@ -88,13 +88,14 @@ class RatioService:
                         ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
 
         # add all valid reply tweets to a database
-        self.__replyTweetRepository.addReplyTweets(validReplyTweets)
-        return True
+        return len(self.__replyTweetRepository.addReplyTweets(validReplyTweets))
 
-    def serveRatioResults(self, numberOfResultsToServe: int):
+    def serveRatioResults(self, numberOfResultsToServe: int) -> int:
         """
         This method will "serve" the given number of results to reply tweets, stating whether the ratio was successful or not.
+        Returns the number of results that were served.
         """
+        numberOfResultsServed = 0
         # get as many reply tweets as requested that are at least N days old
         replyTweets = self.__replyTweetRepository.getAllReplyTweetsAtLeastNDaysOld(self.__DAYS_BEFORE_RESPONDING,
                                                                                    limit=numberOfResultsToServe)
@@ -130,6 +131,7 @@ class RatioService:
 
             else:
                 print("CANNOT SERVE: TWEET/S DELETED.")
+        return numberOfResultsServed
 
     def __getRatioGrade(self, replyTweetScore: int, parentTweetScore: int) -> RatioGrade:
         if parentTweetScore < self.__BASELINE_TWEET_SCORE \

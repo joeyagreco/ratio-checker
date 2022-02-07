@@ -1,3 +1,5 @@
+import time
+
 from services.RatioService import RatioService
 
 """
@@ -13,7 +15,11 @@ if __name__ == "__main__":
     # harvest tweets as long as we can
     numberOfTweetsToHarvest = 100
     numberOfResultsToServe = 100
-    while ratioService.harvestRatioReplies(numberOfTweetsToHarvest):
-        ratioService.harvestRatioReplies(numberOfTweetsToHarvest)
     while True:
-        ratioService.serveRatioResults(numberOfResultsToServe)
+        print("HARVESTING TWEETS")
+        numberOfTweetsHarvested = ratioService.harvestRatioReplies(numberOfTweetsToHarvest)
+        print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
+        numberOfResultsServed = ratioService.serveRatioResults(numberOfResultsToServe)
+        print(f"SERVED {numberOfResultsServed} RESULTS")
+        # sleep for 1 hour
+        time.sleep(3600)
