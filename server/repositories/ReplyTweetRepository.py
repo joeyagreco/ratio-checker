@@ -20,20 +20,20 @@ class ReplyTweetRepository:
         self.__UNIQUE_VIOLATION_ERROR_CODE = "23505"
         # QUERIES
         self.__getAllReplyTweetsQuery = """
-                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at
+                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at, is_priority
                                         FROM {schema}.{table}
         """
         self.__getAllReplyTweetsAtLeastNDaysOldQuery = """
-                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at
+                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at, is_priority
                                         FROM {schema}.{table}
                                         WHERE tweeted_at < (NOW() AT TIME ZONE 'utc') - INTERVAL '{numberOfDays} day'
                                         ORDER BY tweeted_at ASC
                                         LIMIT {limit}
         """
         self.__addReplyTweetsQuery = """
-                                        INSERT INTO {schema}.{table} (tweet_id, parent_tweet_id, tweeted_at)
+                                        INSERT INTO {schema}.{table} (tweet_id, parent_tweet_id, tweeted_at, is_priority)
                                         VALUES %s
-                                        RETURNING id, tweet_id, parent_tweet_id, tweeted_at
+                                        RETURNING id, tweet_id, parent_tweet_id, tweeted_at, is_priority
         """
         self.__getNumberOfRowsQuery = """
                                         SELECT COUNT(*) FROM {schema}.{table}
@@ -44,7 +44,7 @@ class ReplyTweetRepository:
         """
 
         self.__getFirstNReplyTweetsQuery = """
-                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at
+                                        SELECT id, tweet_id, parent_tweet_id, tweeted_at, is_priority
                                         FROM {schema}.{table}
                                         ORDER BY tweeted_at ASC
                                         LIMIT {limit}
@@ -72,7 +72,8 @@ class ReplyTweetRepository:
             replyTweet = ReplyTweet(replyTweetResult[0],
                                     replyTweetResult[1],
                                     replyTweetResult[2],
-                                    replyTweetResult[3])
+                                    replyTweetResult[3],
+                                    replyTweetResult[4])
         return replyTweet
 
     def __objectifyReplyTweetList(self, replyTweetListResult: List) -> List[ReplyTweet]:
@@ -125,7 +126,7 @@ class ReplyTweetRepository:
             with self.__conn.cursor() as cursor:
                 addReplyTweetsQuery = self.__addReplyTweetsQuery.format(schema=self.__SCHEMA,
                                                                         table=self.__TABLE)
-                allReplyTweets = [(rt.tweetId, rt.parentTweetId, rt.tweetedAt) for rt in replyTweetList]
+                allReplyTweets = [(rt.tweetId, rt.parentTweetId, rt.tweetedAt, rt.isPriority) for rt in replyTweetList]
                 execute_values(cursor, addReplyTweetsQuery, allReplyTweets)
                 self.__conn.commit()
                 replyTweetResults = cursor.fetchall()

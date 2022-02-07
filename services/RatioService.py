@@ -89,7 +89,7 @@ class RatioService:
                     parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
                     if parentTweet is not None and str(tweet.id) not in ignoreTweetIds:
                         validReplyTweets.append(
-                            ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
+                            ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"], False))
 
         # add all valid reply tweets to a database
         return len(self.__replyTweetRepository.addReplyTweets(validReplyTweets))
