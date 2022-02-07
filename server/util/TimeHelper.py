@@ -10,4 +10,5 @@ class TimeHelper:
 
     @staticmethod
     def printCurrentDateTime():
+        # https://www.programiz.com/python-programming/datetime/strftime
         print(datetime.now().strftime("%A, %B %#d %#I:%M %p"))
