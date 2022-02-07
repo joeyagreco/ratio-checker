@@ -13,13 +13,13 @@ API Request Limits: https://developer.twitter.com/en/docs/twitter-api/getting-st
 """
 
 if __name__ == "__main__":
-    ratioService = RatioService()
 
-    # harvest tweets as long as we can
     NUMBER_OF_TWEETS_TO_HARVEST = 100
     NUMBER_OF_RESULTS_TO_SERVE = 100
     DEFAULT_SLEEP_TIME_SECONDS = 3600
     ERROR_SLEEP_TIME_SECONDS = 1200
+    ratioService = RatioService()
+
     while True:
         try:
             print("HARVESTING TWEETS")
