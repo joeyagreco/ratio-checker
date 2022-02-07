@@ -1,5 +1,7 @@
 import time
 
+from tweepy import TooManyRequests
+
 from services.RatioService import RatioService
 
 """
@@ -13,13 +15,19 @@ if __name__ == "__main__":
     ratioService = RatioService()
 
     # harvest tweets as long as we can
-    numberOfTweetsToHarvest = 100
-    numberOfResultsToServe = 100
+    NUMBER_OF_TWEETS_TO_HARVEST = 100
+    NUMBER_OF_RESULTS_TO_SERVE = 100
+    DEFAULT_SLEEP_TIME_SECONDS = 3600
+    ERROR_SLEEP_TIME_SECONDS = 1200
     while True:
-        print("HARVESTING TWEETS")
-        numberOfTweetsHarvested = ratioService.harvestRatioReplies(numberOfTweetsToHarvest)
-        print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
-        numberOfResultsServed = ratioService.serveRatioResults(numberOfResultsToServe)
-        print(f"SERVED {numberOfResultsServed} RESULTS")
-        # sleep for 1 hour
-        time.sleep(3600)
+        try:
+            print("HARVESTING TWEETS")
+            numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
+            print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
+            numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
+            print(f"SERVED {numberOfResultsServed} RESULTS")
+            # sleep for 1 hour
+            time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
+        except TooManyRequests as e:
+            print(e)
+            time.sleep(ERROR_SLEEP_TIME_SECONDS)
