@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
     while True:
         try:
+            TimeHelper.printCurrentDateTime()
             print("HARVESTING TWEETS")
             numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
             print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
@@ -30,6 +31,7 @@ if __name__ == "__main__":
             print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(DEFAULT_SLEEP_TIME_SECONDS)} MINUTES...")
             time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
         except TooManyRequests as e:
-            print(f"ERROR: {e}")
+            print(f"ERROR: {e}\n")
+            TimeHelper.printCurrentDateTime()
             print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(ERROR_SLEEP_TIME_SECONDS)} MINUTES...")
             time.sleep(ERROR_SLEEP_TIME_SECONDS)
