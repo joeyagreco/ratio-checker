@@ -8,25 +8,23 @@ from server.models.ReplyTweet import ReplyTweet
 from server.repositories.ReplyTweetRepository import ReplyTweetRepository
 from server.twitter.TwitterSearcher import TwitterSearcher
 from server.twitter.TwitterTweeter import TwitterTweeter
+from server.util.EnvironmentReader import EnvironmentReader
 
 
 class RatioService:
 
     def __init__(self):
         self.__replyTweetRepository = ReplyTweetRepository()
-        self.__BOT_ACCOUNT_TWITTER_ID = "1489809011545358340"
+        self.__BOT_ACCOUNT_TWITTER_ID = EnvironmentReader.get("BOT_TWITTER_ACCOUNT_ID")
         self.__MAX_ROWS_TO_SAVE = 10000
         # amount of tweets Twitter requires as a minimum for searching recent tweets
-        self.__TWITTER_MINIMUM_AMOUNT = 10
+        self.__TWITTER_MINIMUM_RECENT_TWEET_SEARCH_AMOUNT = 10
         # how many days old a reply tweet has to be before being considered for this bot to serve
-        self.__DAYS_BEFORE_RESPONDING = 1
+        self.__DAYS_TO_WAIT_BEFORE_RESPONDING = 1
         # the minimum score a parent tweet has to have before any reply can be considered for this bot to serve
         self.__BASELINE_TWEET_SCORE = 3
         # the amount of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
-        self.__TWEET_SCORE_BUFFER = 5
-        # the percentage of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
-        # ex: 1 = 1%, 15 = 15%, etc...
-        self.__TWEET_SCORE_BUFFER_PERCENT = 10
+        self.__TWEET_SCORE_BUFFER = 10
         # this is used to prevent division by 0 without affecting the overall score in calculations
         self.__VERY_SMALL_NUMBER = sys.float_info.min
         # weights used when calculating tweet score
@@ -51,14 +49,14 @@ class RatioService:
         # first, check if we have hit the limit of total tweet replies we want to save
         # (or are within 9, in which case we will stop since we must grab at least 10 tweets with each query)
         numberOfRows = self.__replyTweetRepository.getNumberOfRows()
-        if numberOfRows + (self.__TWITTER_MINIMUM_AMOUNT - 1) >= self.__MAX_ROWS_TO_SAVE:
+        if numberOfRows + (self.__TWITTER_MINIMUM_RECENT_TWEET_SEARCH_AMOUNT - 1) >= self.__MAX_ROWS_TO_SAVE:
             return 0
         else:
             # we'll adjust the number of reply tweets to retrieve if numberOfRepliesToHarvest will put us over the MAX_ROWS_TO_SAVE
             if numberOfRows + numberOfRepliesToHarvest > self.__MAX_ROWS_TO_SAVE:
                 numberOfRepliesToHarvest = self.__MAX_ROWS_TO_SAVE - numberOfRows
             # make sure we always have at least 10 (Twitter's minimum) replies to harvest
-            numberOfRepliesToHarvest = numberOfRepliesToHarvest if numberOfRepliesToHarvest >= self.__TWITTER_MINIMUM_AMOUNT else self.__TWITTER_MINIMUM_AMOUNT
+            numberOfRepliesToHarvest = numberOfRepliesToHarvest if numberOfRepliesToHarvest >= self.__TWITTER_MINIMUM_RECENT_TWEET_SEARCH_AMOUNT else self.__TWITTER_MINIMUM_RECENT_TWEET_SEARCH_AMOUNT
 
         # info we are interested in for "ratio" tweets
         tweetFields = [TweetField.CONVERSATION_ID, TweetField.CREATED_AT, TweetField.IN_REPLY_TO_USER_ID,
@@ -103,8 +101,9 @@ class RatioService:
         """
         numberOfResultsServed = 0
         # get as many reply tweets as requested that are at least N days old
-        replyTweets = self.__replyTweetRepository.getAllReplyTweetsAtLeastNDaysOld(self.__DAYS_BEFORE_RESPONDING,
-                                                                                   limit=numberOfResultsToServe)
+        replyTweets = self.__replyTweetRepository.getAllReplyTweetsAtLeastNDaysOld(
+            self.__DAYS_TO_WAIT_BEFORE_RESPONDING,
+            limit=numberOfResultsToServe)
         # now that we have them saved locally, we delete them from the database
         self.__replyTweetRepository.deleteReplyTweetsByIds([rt.id for rt in replyTweets])
         # go through each reply tweet and determine if it was a successful ratio or not/reply with results
