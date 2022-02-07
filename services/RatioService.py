@@ -16,7 +16,7 @@ class RatioService:
         # amount of tweets Twitter requires as a minimum for searching recent tweets
         self.__TWITTER_MINIMUM_AMOUNT = 10
         # how many days old a reply tweet has to be before being considered for this bot to serve
-        self.__DAYS_BEFORE_RESPONDING = 0
+        self.__DAYS_BEFORE_RESPONDING = 1
         # the minimum score a parent tweet has to have before any reply can be considered for this bot to serve
         self.__BASELINE_TWEET_SCORE = 3
         # the amount of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
@@ -124,8 +124,9 @@ class RatioService:
                     else:
                         # this is not a ratio
                         tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
-                    # respond with results
+                    # respond to tweet with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
+                    numberOfResultsServed += 1
                 else:
                     print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE.")
 
