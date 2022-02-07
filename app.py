@@ -26,8 +26,10 @@ if __name__ == "__main__":
             print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
             numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
             print(f"SERVED {numberOfResultsServed} RESULTS")
-            # sleep for 1 hour
+            # sleep
+            print(f"SLEEPING FOR {DEFAULT_SLEEP_TIME_SECONDS} SECONDS...")
             time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
         except TooManyRequests as e:
-            print(e)
+            print(f"ERROR: {e}")
+            print(f"SLEEPING FOR {ERROR_SLEEP_TIME_SECONDS} SECONDS...")
             time.sleep(ERROR_SLEEP_TIME_SECONDS)
