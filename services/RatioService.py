@@ -25,7 +25,7 @@ class RatioService:
         # ex: 1 = 1%, 15 = 15%, etc...
         self.__TWEET_SCORE_BUFFER_PERCENT = 10
         # this is used to prevent division by 0 without affecting the overall score in calculations
-        self.__VERY_SMALL_NUMBER = 0.000000000000000000000001
+        self.__VERY_SMALL_NUMBER = 0.00000000000000000000000000001
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
 

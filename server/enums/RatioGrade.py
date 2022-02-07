@@ -24,6 +24,36 @@ class RatioGrade(Enum):
     F = auto()
 
     @staticmethod
+    def getText(ratioGrade: RatioGrade) -> str:
+        match ratioGrade:
+            case RatioGrade.A_PLUS:
+                return "A+"
+            case RatioGrade.A:
+                return "A"
+            case RatioGrade.A_MINUS:
+                return "A-"
+            case RatioGrade.B_PLUS:
+                return "B+"
+            case RatioGrade.B:
+                return "B"
+            case RatioGrade.B_MINUS:
+                return "B-"
+            case RatioGrade.C_PLUS:
+                return "C+"
+            case RatioGrade.C:
+                return "C"
+            case RatioGrade.C_MINUS:
+                return "C-"
+            case RatioGrade.D_PLUS:
+                return "D+"
+            case RatioGrade.D:
+                return "D"
+            case RatioGrade.D_MINUS:
+                return "D"
+            case _:
+                raise ValueError("Not a valid RatioGrade to get the text of!")
+
+    @staticmethod
     def allValidGrades() -> List[RatioGrade]:
         return [RatioGrade.A_PLUS, RatioGrade.A, RatioGrade.A_MINUS, RatioGrade.B_PLUS, RatioGrade.B,
                 RatioGrade.B_MINUS, RatioGrade.C_PLUS, RatioGrade.C, RatioGrade.C_MINUS, RatioGrade.D_PLUS,
