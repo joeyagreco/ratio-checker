@@ -7,6 +7,7 @@ class TweetField(Enum):
     """
     All Tweet fields: https://developer.twitter.com/en/docs/twitter-api/data-dictionary/object-model/tweet#:~:text=Place%20objects-,Tweet,-Tweets%20are%20the
     """
+    AUTHOR_ID = auto()
     CONVERSATION_ID = auto()
     CREATED_AT = auto()
     IN_REPLY_TO_USER_ID = auto()
