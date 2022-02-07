@@ -175,6 +175,10 @@ class ReplyTweetRepository:
 
     @timer
     def deleteReplyTweetsByIds(self, ids: List[int]):
+        # failsafe
+        if len(ids) == 0:
+            return
+
         self.__connect()
         with self.__conn.cursor() as cursor:
             deleteReplyTweetsQuery = self.__deleteReplyTweetsByIdsQuery.format(schema=self.__SCHEMA,
