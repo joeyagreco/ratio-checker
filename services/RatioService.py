@@ -12,6 +12,7 @@ class RatioService:
 
     def __init__(self):
         self.__replyTweetRepository = ReplyTweetRepository()
+        self.__BOT_ACCOUNT_TWITTER_ID = "1489809011545358340"
         self.__MAX_ROWS_TO_SAVE = 10000
         # amount of tweets Twitter requires as a minimum for searching recent tweets
         self.__TWITTER_MINIMUM_AMOUNT = 10
@@ -67,7 +68,9 @@ class RatioService:
         ratioReplyTweets = TwitterSearcher.getRecentTweets(query, tweetFields, numberOfRepliesToHarvest)
 
         # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
-        savedTweetIds = self.__replyTweetRepository.getAllTweetIds()
+        ignoreTweetIds = self.__replyTweetRepository.getAllTweetIds()
+        # prevent any tweets from this bot being saved
+        ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
 
         # save all valid reply tweets in a list
         validReplyTweets = list()
@@ -83,7 +86,7 @@ class RatioService:
                     if referencedTweet["type"] == "replied_to":
                         parentTweetId = referencedTweet["id"]
                 parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
-                if parentTweet is not None and str(tweet.id) not in savedTweetIds:
+                if parentTweet is not None and str(tweet.id) not in ignoreTweetIds:
                     validReplyTweets.append(
                         ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
 
@@ -125,8 +128,12 @@ class RatioService:
                         # this is not a ratio
                         tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
                     # respond to tweet with results
-                    print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
-                    numberOfResultsServed += 1
+                    # failsafe to ensure the bot never responds to its own tweet
+                    if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID:
+                        print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
+                        numberOfResultsServed += 1
+                    else:
+                        print(f"FAILSAFE: PREVENTED BOT FROM REPLYING TO ITSELF.")
                 else:
                     print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE.")
 
