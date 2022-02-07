@@ -126,10 +126,10 @@ class RatioService:
                     # respond with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                 else:
-                    print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE")
+                    print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE.")
 
             else:
-                print("CANNOT SERVE: TWEET/S DELETED")
+                print("CANNOT SERVE: TWEET/S DELETED.")
 
     def __getRatioGrade(self, replyTweetScore: int, parentTweetScore: int) -> RatioGrade:
         if parentTweetScore < self.__BASELINE_TWEET_SCORE \
