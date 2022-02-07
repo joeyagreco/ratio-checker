@@ -30,7 +30,6 @@ if __name__ == "__main__":
                     break
             numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
             print(f"SERVED {numberOfResultsServed} RESULTS")
-            # sleep
             print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(DEFAULT_SLEEP_TIME_SECONDS)} MINUTES...")
             time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
         except TooManyRequests as e:
