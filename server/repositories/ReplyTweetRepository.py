@@ -27,6 +27,7 @@ class ReplyTweetRepository:
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at
                                         FROM {schema}.{table}
                                         WHERE tweeted_at < (NOW() AT TIME ZONE 'utc') - INTERVAL '{numberOfDays} day'
+                                        ORDER BY tweeted_at ASC
                                         LIMIT {limit}
         """
         self.__addReplyTweetsQuery = """
@@ -45,6 +46,7 @@ class ReplyTweetRepository:
         self.__getFirstNReplyTweetsQuery = """
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at
                                         FROM {schema}.{table}
+                                        ORDER BY tweeted_at ASC
                                         LIMIT {limit}
         """
 
