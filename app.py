@@ -23,8 +23,11 @@ if __name__ == "__main__":
     while True:
         try:
             print("HARVESTING TWEETS")
-            numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
-            print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
+            for i in range(5):
+                numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
+                print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
+                if numberOfTweetsHarvested == 0:
+                    break
             numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
             print(f"SERVED {numberOfResultsServed} RESULTS")
             # sleep
