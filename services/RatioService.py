@@ -26,6 +26,9 @@ class RatioService:
         self.__TWEET_SCORE_BUFFER_PERCENT = 10
         # this is used to prevent division by 0 without affecting the overall score in calculations
         self.__VERY_SMALL_NUMBER = 0.00000000000000000000000000001
+        # weights used when calculating tweet score
+        self.__LIKE_WEIGHT = 1.0
+        self.__RETWEET_WEIGHT = 1.0
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
 
@@ -34,7 +37,8 @@ class RatioService:
         Returns the score of a tweet.
         Based off of likes and retweets.
         """
-        return tweet.data["public_metrics"]["like_count"] + tweet.data["public_metrics"]["retweet_count"]
+        return (tweet.data["public_metrics"]["like_count"] * self.__LIKE_WEIGHT) + (
+                tweet.data["public_metrics"]["retweet_count"] * self.__RETWEET_WEIGHT)
 
     def harvestRatioReplies(self, numberOfRepliesToHarvest: int) -> bool:
         """
