@@ -114,6 +114,9 @@ class ReplyTweetRepository:
 
     @timer
     def addReplyTweets(self, replyTweetList: List[ReplyTweet]) -> List[ReplyTweet]:
+        # failsafe
+        if len(replyTweetList) == 0:
+            return list()
 
         try:
             self.__connect()
