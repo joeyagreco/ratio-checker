@@ -49,9 +49,11 @@ class RatioGrade(Enum):
             case RatioGrade.D:
                 return "D"
             case RatioGrade.D_MINUS:
-                return "D"
+                return "D-"
+            case RatioGrade.F:
+                return "F"
             case _:
-                raise ValueError("Not a valid RatioGrade to get the text of!")
+                raise ValueError(f"{ratioGrade.name} is not a valid RatioGrade to get the text of!")
 
     @staticmethod
     def allValidGrades() -> List[RatioGrade]:

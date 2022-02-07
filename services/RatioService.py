@@ -12,7 +12,7 @@ class RatioService:
 
     def __init__(self):
         self.__replyTweetRepository = ReplyTweetRepository()
-        self.__MAX_ROWS_TO_SAVE = 100
+        self.__MAX_ROWS_TO_SAVE = 10000
         # amount of tweets Twitter requires as a minimum for searching recent tweets
         self.__TWITTER_MINIMUM_AMOUNT = 10
         # how many days old a reply tweet has to be before being considered for this bot to serve
@@ -119,10 +119,10 @@ class RatioService:
                     # check if the reply was a ratio
                     if ratioGrade in RatioGrade.allPassingGrades():
                         # this is a ratio
-                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nRatio Grade: {ratioGrade.name}"
+                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
                     else:
                         # this is not a ratio
-                        tweetText = f"{self.__FAILED_RATIO_TEXT}"
+                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
                     # respond with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                 else:
