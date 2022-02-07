@@ -118,7 +118,7 @@ class RatioService:
                         tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nRatio Grade: {ratioGrade.name}"
                     else:
                         # this is not a ratio
-                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nRatio Grade: {ratioGrade.name}"
+                        tweetText = f"{self.__FAILED_RATIO_TEXT}"
                     # respond with results
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                 else:
