@@ -105,41 +105,10 @@ class RatioService:
                                                                                    limit=numberOfResultsToServe)
         # now that we have them saved locally, we delete them from the database
         self.__replyTweetRepository.deleteReplyTweetsByIds([rt.id for rt in replyTweets])
-        # go through each reply tweet and determine if it was a successful ratio or not
-        # info we are interested in
-        tweetFields = [TweetField.PUBLIC_METRICS]
+        # go through each reply tweet and determine if it was a successful ratio or not/reply with results
         for replyTweet in replyTweets:
-            # first get the reply tweet
-            actualReplyTweet = TwitterSearcher.getTweet(replyTweet.tweetId, tweetFields).data
-            # then get the parent tweet
-            actualParentTweet = TwitterSearcher.getTweet(replyTweet.parentTweetId, tweetFields).data
-            # make sure both tweets still exist
-            if actualReplyTweet is not None and actualParentTweet is not None:
-                # check if the tweet scores differ enough to qualify for a serve from the bot
-                parentTweetScore = self.__getTweetScore(actualParentTweet)
-                replyTweetScore = self.__getTweetScore(actualReplyTweet)
-                # get the ratio grade and respond accordingly
-                ratioGrade = self.__getRatioGrade(replyTweetScore, parentTweetScore)
-                if ratioGrade in RatioGrade.allValidGrades():
-                    # check if the reply was a ratio
-                    if ratioGrade in RatioGrade.allPassingGrades():
-                        # this is a ratio
-                        tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
-                    else:
-                        # this is not a ratio
-                        tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
-                    # respond to tweet with results
-                    # failsafe to ensure the bot never responds to its own tweet
-                    if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID:
-                        print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
-                        numberOfResultsServed += 1
-                    else:
-                        print(f"FAILSAFE: PREVENTED BOT FROM REPLYING TO ITSELF.")
-                else:
-                    print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE.")
-
-            else:
-                print("CANNOT SERVE: TWEET/S DELETED.")
+            if self.__serveResultToReplyTweet(replyTweet):
+                numberOfResultsServed += 1
         return numberOfResultsServed
 
     def __getRatioGrade(self, replyTweetScore: int, parentTweetScore: int) -> RatioGrade:
@@ -176,3 +145,43 @@ class RatioService:
             return RatioGrade.D_MINUS
         else:
             return RatioGrade.UNGRADABLE
+
+    def __serveResultToReplyTweet(self, replyTweet: ReplyTweet) -> bool:
+        """
+        Replies to a tweet (if it can) with the results of the ratio.
+        Returns whether or not a reply was tweeted.
+        """
+        # info we are interested in
+        tweetFields = [TweetField.PUBLIC_METRICS]
+        # first get the reply tweet
+        actualReplyTweet = TwitterSearcher.getTweet(replyTweet.tweetId, tweetFields).data
+        # then get the parent tweet
+        actualParentTweet = TwitterSearcher.getTweet(replyTweet.parentTweetId, tweetFields).data
+        # make sure both tweets still exist
+        if actualReplyTweet is not None and actualParentTweet is not None:
+            # check if the tweet scores differ enough to qualify for a serve from the bot
+            parentTweetScore = self.__getTweetScore(actualParentTweet)
+            replyTweetScore = self.__getTweetScore(actualReplyTweet)
+            # get the ratio grade and respond accordingly
+            ratioGrade = self.__getRatioGrade(replyTweetScore, parentTweetScore)
+            if ratioGrade in RatioGrade.allValidGrades():
+                # check if the reply was a ratio
+                if ratioGrade in RatioGrade.allPassingGrades():
+                    # this is a ratio
+                    tweetText = f"{self.__SUCCESSFUL_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
+                else:
+                    # this is not a ratio
+                    tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
+                # respond to tweet with results
+                # failsafe to ensure the bot never responds to its own tweet
+                if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID:
+                    print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
+                    return True
+                else:
+                    print(f"FAILSAFE: PREVENTED BOT FROM REPLYING TO ITSELF.")
+            else:
+                print("REQUIREMENTS NOT MET FOR THIS BOT TO SERVE.")
+
+        else:
+            print("CANNOT SERVE: TWEET/S DELETED.")
+        return False
