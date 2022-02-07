@@ -2,6 +2,7 @@ import time
 
 from tweepy import TooManyRequests
 
+from server.util.TimeHelper import TimeHelper
 from services.RatioService import RatioService
 
 """
@@ -27,9 +28,9 @@ if __name__ == "__main__":
             numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
             print(f"SERVED {numberOfResultsServed} RESULTS")
             # sleep
-            print(f"SLEEPING FOR {DEFAULT_SLEEP_TIME_SECONDS} SECONDS...")
+            print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(DEFAULT_SLEEP_TIME_SECONDS)} MINUTES...")
             time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
         except TooManyRequests as e:
             print(f"ERROR: {e}")
-            print(f"SLEEPING FOR {ERROR_SLEEP_TIME_SECONDS} SECONDS...")
+            print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(ERROR_SLEEP_TIME_SECONDS)} MINUTES...")
             time.sleep(ERROR_SLEEP_TIME_SECONDS)
