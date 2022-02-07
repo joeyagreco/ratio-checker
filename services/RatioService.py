@@ -1,3 +1,5 @@
+import sys
+
 from tweepy import Tweet
 
 from server.enums.RatioGrade import RatioGrade
@@ -26,7 +28,7 @@ class RatioService:
         # ex: 1 = 1%, 15 = 15%, etc...
         self.__TWEET_SCORE_BUFFER_PERCENT = 10
         # this is used to prevent division by 0 without affecting the overall score in calculations
-        self.__VERY_SMALL_NUMBER = 0.00000000000000000000000000001
+        self.__VERY_SMALL_NUMBER = sys.float_info.min
         # weights used when calculating tweet score
         self.__LIKE_WEIGHT = 1.0
         self.__RETWEET_WEIGHT = 1.0
