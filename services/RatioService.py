@@ -85,10 +85,11 @@ class RatioService:
                     # find the "replied_to" entry
                     if referencedTweet["type"] == "replied_to":
                         parentTweetId = referencedTweet["id"]
-                parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
-                if parentTweet is not None and str(tweet.id) not in ignoreTweetIds:
-                    validReplyTweets.append(
-                        ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
+                if parentTweetId is not None:
+                    parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
+                    if parentTweet is not None and str(tweet.id) not in ignoreTweetIds:
+                        validReplyTweets.append(
+                            ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"]))
 
         # add all valid reply tweets to a database
         return len(self.__replyTweetRepository.addReplyTweets(validReplyTweets))
