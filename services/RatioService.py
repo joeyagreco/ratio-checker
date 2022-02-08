@@ -193,7 +193,7 @@ class RatioService:
         This returns whether or not the given reply tweet should be harvested
         """
         # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
-        # prevent any tweets from this bot being saved
+        # prevent any tweets that were authored by this bot from being saved
         ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
         if parentTweet is None or str(replyTweet.id) in ignoreTweetIds:
             return False
