@@ -34,7 +34,8 @@ class RatioService:
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
         # reply tweets will not be served if any of these words are in the parent/reply tweet text
-        self.__WORDS_TO_AVOID = ["aspect", "debt", "fraction", "income", "liquid", "market", "profit"]
+        self.__WORDS_TO_AVOID = ["aspect", "debt", "fraction", "gdp", "income", "inflation", "liquid", "market",
+                                 "profit", "turnover"]
 
     def __getTweetScore(self, tweet: Tweet) -> int:
         """
