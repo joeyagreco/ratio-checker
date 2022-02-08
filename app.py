@@ -3,7 +3,7 @@ import time
 from tweepy import TooManyRequests
 
 from server.util.TimeHelper import TimeHelper
-from services.RatioService import RatioService
+from server.services.RatioService import RatioService
 
 """
 General Guide: https://dev.to/twitterdev/a-comprehensive-guide-for-using-the-twitter-api-v2-using-tweepy-in-python-15d9#:~:text=Tweepy%20is%20a%20popular%20package,the%20academic%20research%20product%20track.
