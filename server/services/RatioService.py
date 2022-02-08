@@ -199,6 +199,6 @@ class RatioService:
         if parentTweet is None or str(replyTweet.id) in ignoreTweetIds:
             return False
         for word in self.__WORDS_TO_AVOID:
-            if word in replyTweet.text or word in parentTweet.text:
+            if word.lower() in replyTweet.text.lower() or word in parentTweet.text.lower():
                 return False
         return True
