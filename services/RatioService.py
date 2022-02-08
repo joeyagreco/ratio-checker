@@ -34,7 +34,7 @@ class RatioService:
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
         # words that if they are in a tweet, we should avoid counting this tweet as an attempted ratio
-        self.__AVOID_WORDS = ["aspect", "debt", "income"]
+        self.__AVOID_WORDS = ["aspect", "debt", "fraction", "income", "liquid", "market", "profit"]
 
     def __getTweetScore(self, tweet: Tweet) -> int:
         """
