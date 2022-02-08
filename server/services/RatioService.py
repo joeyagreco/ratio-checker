@@ -23,7 +23,7 @@ class RatioService:
         # how many days old a reply tweet has to be before being considered for this bot to serve
         self.__DAYS_TO_WAIT_BEFORE_RESPONDING = 1
         # the minimum score a parent tweet has to have before any reply can be considered for this bot to serve
-        self.__MINIMUM_TWEET_SCORE_TO_BE_SERVABLE = 10
+        self.__MINIMUM_TWEET_SCORE_TO_BE_SERVABLE = 25
         # the amount of tweet score that the parent tweet has to differ from the reply tweet to be considered for this bot to serve
         self.__MINIMUM_TWEET_SCORE_DIFFERENCE_TO_BE_SERVABLE = 25
         # this is used to prevent division by 0 without affecting the overall score in calculations
