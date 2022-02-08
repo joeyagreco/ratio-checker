@@ -23,9 +23,9 @@ class RatioService:
         # how many days old a reply tweet has to be before being considered for this bot to serve
         self.__DAYS_TO_WAIT_BEFORE_RESPONDING = 1
         # the minimum score a parent tweet has to have before any reply can be considered for this bot to serve
-        self.__BASELINE_TWEET_SCORE = 10
+        self.__MINIMUM_TWEET_SCORE_TO_BE_SERVABLE = 10
         # the amount of tweet score that the parent tweet has to differ from the reply tweet to be considered for this bot to serve
-        self.__TWEET_SCORE_BUFFER = 25
+        self.__MINIMUM_TWEET_SCORE_DIFFERENCE_TO_BE_SERVABLE = 25
         # this is used to prevent division by 0 without affecting the overall score in calculations
         self.__VERY_SMALL_NUMBER = sys.float_info.min
         # weights used when calculating tweet score
@@ -33,8 +33,8 @@ class RatioService:
         self.__RETWEET_WEIGHT = 1.0
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
-        # words that if they are in a tweet, we should avoid counting this tweet as an attempted ratio
-        self.__AVOID_WORDS = ["aspect", "debt", "fraction", "income", "liquid", "market", "profit"]
+        # reply tweets will not be served if any of these words are in the parent/reply tweet text
+        self.__WORDS_TO_AVOID = ["aspect", "debt", "fraction", "income", "liquid", "market", "profit"]
 
     def __getTweetScore(self, tweet: Tweet) -> int:
         """
@@ -114,8 +114,8 @@ class RatioService:
         return numberOfResultsServed
 
     def __getRatioGrade(self, replyTweetScore: int, parentTweetScore: int) -> RatioGrade:
-        if parentTweetScore < self.__BASELINE_TWEET_SCORE \
-                or abs(parentTweetScore - replyTweetScore) < self.__TWEET_SCORE_BUFFER:
+        if parentTweetScore < self.__MINIMUM_TWEET_SCORE_TO_BE_SERVABLE \
+                or abs(parentTweetScore - replyTweetScore) < self.__MINIMUM_TWEET_SCORE_DIFFERENCE_TO_BE_SERVABLE:
             return RatioGrade.UNGRADABLE
         if replyTweetScore < parentTweetScore:
             return RatioGrade.F
@@ -197,7 +197,7 @@ class RatioService:
         ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
         if parentTweet is None or str(replyTweet.id) in ignoreTweetIds:
             return False
-        for word in self.__AVOID_WORDS:
+        for word in self.__WORDS_TO_AVOID:
             if word in replyTweet.text or word in parentTweet.text:
                 return False
         return True
