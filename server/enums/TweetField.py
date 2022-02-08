@@ -13,6 +13,7 @@ class TweetField(Enum):
     IN_REPLY_TO_USER_ID = auto()
     PUBLIC_METRICS = auto()
     REFERENCED_TWEETS = auto()
+    TEXT = auto()
 
     @staticmethod
     def normalized(tweetField: TweetField) -> str:

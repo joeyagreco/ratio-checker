@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from tweepy import Tweet
 
@@ -32,6 +33,8 @@ class RatioService:
         self.__RETWEET_WEIGHT = 1.0
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
+        # words that if they are in a tweet, we should avoid counting this tweet as an attempted ratio
+        self.__AVOID_WORDS = ["aspect", "debt", "income"]
 
     def __getTweetScore(self, tweet: Tweet) -> int:
         """
@@ -60,17 +63,15 @@ class RatioService:
 
         # info we are interested in for "ratio" tweets
         tweetFields = [TweetField.CONVERSATION_ID, TweetField.CREATED_AT, TweetField.IN_REPLY_TO_USER_ID,
-                       TweetField.PUBLIC_METRICS, TweetField.REFERENCED_TWEETS]
+                       TweetField.PUBLIC_METRICS, TweetField.REFERENCED_TWEETS, TweetField.TEXT]
         # query info: https://developer.twitter.com/en/docs/twitter-api/enterprise/rules-and-filtering/operators-by-product
         query = "ratio lang:en is:reply"
 
         # get tweets from Twitter
         ratioReplyTweets = TwitterSearcher.getRecentTweets(query, tweetFields, numberOfRepliesToHarvest)
 
-        # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
-        ignoreTweetIds = self.__replyTweetRepository.getAllTweetIds()
-        # prevent any tweets from this bot being saved
-        ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
+        # get all ids for tweets that are currently harvested
+        allTweetIds = self.__replyTweetRepository.getAllTweetIds()
 
         # save all valid reply tweets in a list
         validReplyTweets = list()
@@ -87,7 +88,7 @@ class RatioService:
                         parentTweetId = referencedTweet["id"]
                 if parentTweetId is not None:
                     parentTweet = TwitterSearcher.getTweet(parentTweetId, tweetFields)[0]
-                    if parentTweet is not None and str(tweet.id) not in ignoreTweetIds:
+                    if self.__replyTweetShouldBeHarvested(tweet, parentTweet, allTweetIds):
                         validReplyTweets.append(
                             ReplyTweet(None, str(tweet.id), str(parentTweet.id), tweet.data["created_at"], False))
 
@@ -186,3 +187,17 @@ class RatioService:
         else:
             print("CANNOT SERVE: TWEET/S DELETED.")
         return False
+
+    def __replyTweetShouldBeHarvested(self, replyTweet: Tweet, parentTweet: Tweet, ignoreTweetIds: List[str]) -> bool:
+        """
+        This returns whether or not the given reply tweet should be harvested
+        """
+        # prevent any tweets that are already saved to the database from being added again by keeping track of the ids we already have
+        # prevent any tweets from this bot being saved
+        ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
+        if parentTweet is None or str(replyTweet.id) in ignoreTweetIds:
+            return False
+        for word in self.__AVOID_WORDS:
+            if word in replyTweet.text or word in parentTweet.text:
+                return False
+        return True
