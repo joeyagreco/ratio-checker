@@ -22,6 +22,7 @@ class ReplyTweetRepository:
         self.__getAllReplyTweetsQuery = """
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at, is_priority
                                         FROM {schema}.{table}
+                                        ORDER BY tweeted_at ASC
         """
         self.__getAllReplyTweetsAtLeastNDaysOldQuery = """
                                         SELECT id, tweet_id, parent_tweet_id, tweeted_at, is_priority
