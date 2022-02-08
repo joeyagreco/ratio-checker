@@ -23,9 +23,9 @@ class RatioService:
         # how many days old a reply tweet has to be before being considered for this bot to serve
         self.__DAYS_TO_WAIT_BEFORE_RESPONDING = 1
         # the minimum score a parent tweet has to have before any reply can be considered for this bot to serve
-        self.__BASELINE_TWEET_SCORE = 3
-        # the amount of tweet score that the parent tweet has to have ABOVE the reply tweet to be considered for this bot to serve
-        self.__TWEET_SCORE_BUFFER = 10
+        self.__BASELINE_TWEET_SCORE = 10
+        # the amount of tweet score that the parent tweet has to differ from the reply tweet to be considered for this bot to serve
+        self.__TWEET_SCORE_BUFFER = 25
         # this is used to prevent division by 0 without affecting the overall score in calculations
         self.__VERY_SMALL_NUMBER = sys.float_info.min
         # weights used when calculating tweet score
