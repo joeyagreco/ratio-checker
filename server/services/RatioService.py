@@ -210,5 +210,5 @@ class RatioService:
     def __tweetsHaveWordsToAvoid(self, replyTweet: Tweet, parentTweet: Tweet) -> bool:
         for word in self.__WORDS_TO_AVOID:
             if word.lower() in replyTweet.text.lower() or word in parentTweet.text.lower():
-                return False
-        return True
+                return True
+        return False
