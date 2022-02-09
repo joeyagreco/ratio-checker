@@ -34,8 +34,8 @@ class RatioService:
         self.__SUCCESSFUL_RATIO_TEXT = "RATIO SUCCESSFUL!"
         self.__FAILED_RATIO_TEXT = "RATIO FAILED."
         # reply tweets will not be served if any of these words are in the parent/reply tweet text
-        self.__WORDS_TO_AVOID = ["aspect", "debt", "fraction", "gdp", "income", "inflation", "liquid", "lose", "loss",
-                                 "market", "percent", "profit", "turnover", "win", "w/l"]
+        self.__WORDS_TO_AVOID = ["aspect", "debt", "equity", "fraction", "gdp", "income", "inflation", "liquid", "lose",
+                                 "loss", "market", "percent", "profit", "turnover", "win", "w/l", ":", "/"]
 
     def __getTweetScore(self, tweet: Tweet) -> int:
         """
@@ -177,7 +177,9 @@ class RatioService:
                     tweetText = f"{self.__FAILED_RATIO_TEXT}\n\nParent Tweet Score: {parentTweetScore}\nReply Tweet Score: {replyTweetScore}\n\nRatio Grade: {RatioGrade.getText(ratioGrade)}"
                 # respond to tweet with results
                 # failsafe to ensure the bot never responds to its own tweet
-                if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID:
+                # failsafe to ensure the bot ignores avoid words
+                if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID and not self.__tweetsHaveWordsToAvoid(
+                        actualReplyTweet, actualParentTweet):
                     print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
                     return True
                 else:
@@ -198,6 +200,11 @@ class RatioService:
         ignoreTweetIds.append(self.__BOT_ACCOUNT_TWITTER_ID)
         if parentTweet is None or str(replyTweet.id) in ignoreTweetIds:
             return False
+        if self.__tweetsHaveWordsToAvoid(replyTweet, parentTweet):
+            return False
+        return True
+
+    def __tweetsHaveWordsToAvoid(self, replyTweet: Tweet, parentTweet: Tweet) -> bool:
         for word in self.__WORDS_TO_AVOID:
             if word.lower() in replyTweet.text.lower() or word in parentTweet.text.lower():
                 return False
