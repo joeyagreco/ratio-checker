@@ -1,7 +1,7 @@
 import sys
 from typing import List
 
-from tweepy import Tweet
+from tweepy import Tweet, Forbidden
 
 from server.enums.RatioGrade import RatioGrade
 from server.enums.TweetField import TweetField
@@ -180,7 +180,10 @@ class RatioService:
                 # failsafe to ensure the bot ignores avoid words
                 if replyTweet.tweetId != self.__BOT_ACCOUNT_TWITTER_ID and not self.__tweetsHaveWordsToAvoid(
                         actualReplyTweet, actualParentTweet):
-                    print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
+                    try:
+                        print(TwitterTweeter.createReplyTweet(tweetText, int(replyTweet.tweetId)))
+                    except Forbidden as e:
+                        print(f"ERROR: FORBIDDEN -- {e}")
                     return True
                 else:
                     print(f"FAILSAFE: PREVENTED BOT FROM REPLYING TO ITSELF.")
