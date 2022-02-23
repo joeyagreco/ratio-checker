@@ -18,8 +18,7 @@ ratio was successful or not.</h2>
 </ul>
 If the tweet meets these basic requirements (and a few other more specific requirements), information about that tweet is gathered and saved into a PostgreSQL database table.
 <br>
-
-![reply_tweet database table.](info/images/postgresql_database_table.png?raw=true)
+<img src="info/images/postgresql_database_table.png" alt="reply_tweet database table." width="500">
 </h4>
 
 <h2>Serving</h2>
