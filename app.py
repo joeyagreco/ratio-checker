@@ -2,8 +2,6 @@ import time
 
 from tweepy import TooManyRequests
 
-from server.enums.TweetField import TweetField
-from server.twitter.TwitterSearcher import TwitterSearcher
 from server.util.TimeHelper import TimeHelper
 from server.services.RatioService import RatioService
 
@@ -15,36 +13,24 @@ API Request Limits: https://developer.twitter.com/en/docs/twitter-api/getting-st
 """
 
 if __name__ == "__main__":
-    tweetFields = [TweetField.AUTHOR_ID, TweetField.CONVERSATION_ID, TweetField.CREATED_AT,
-                   TweetField.IN_REPLY_TO_USER_ID,
-                   TweetField.PUBLIC_METRICS, TweetField.REFERENCED_TWEETS]
-    # tweets = TwitterSearcher.getTweetsThatMentionBot(tweetFields)
-    # print(tweets)
-
     NUMBER_OF_TWEETS_TO_HARVEST = 100
     NUMBER_OF_RESULTS_TO_SERVE = 100
     DEFAULT_SLEEP_TIME_SECONDS = 3600
     ERROR_SLEEP_TIME_SECONDS = 1200
     ratioService = RatioService()
-    # ratioService.serveRatioResults(1)
 
-    pt = TwitterSearcher.getTweet("1490748097584156673", tweetFields)[0]
-    rt = TwitterSearcher.getTweet("1490757720311570434", tweetFields)[0]
-
-    print(ratioService.tweetsHaveWordsToAvoid(rt, pt))
-
-    # while True:
-    #     try:
-    #         TimeHelper.printCurrentDateTime()
-    #         print("HARVESTING TWEETS")
-    #         numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
-    #         print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
-    #         numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
-    #         print(f"SERVED {numberOfResultsServed} RESULTS")
-    #         print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(DEFAULT_SLEEP_TIME_SECONDS)} MINUTES...")
-    #         time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
-    #     except TooManyRequests as e:
-    #         print(f"ERROR: {e}\n")
-    #         TimeHelper.printCurrentDateTime()
-    #         print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(ERROR_SLEEP_TIME_SECONDS)} MINUTES...")
-    #         time.sleep(ERROR_SLEEP_TIME_SECONDS)
+    while True:
+        try:
+            TimeHelper.printCurrentDateTime()
+            print("HARVESTING TWEETS")
+            numberOfTweetsHarvested = ratioService.harvestRatioReplies(NUMBER_OF_TWEETS_TO_HARVEST)
+            print(f"HARVESTED {numberOfTweetsHarvested} TWEETS")
+            numberOfResultsServed = ratioService.serveRatioResults(NUMBER_OF_RESULTS_TO_SERVE)
+            print(f"SERVED {numberOfResultsServed} RESULTS")
+            print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(DEFAULT_SLEEP_TIME_SECONDS)} MINUTES...")
+            time.sleep(DEFAULT_SLEEP_TIME_SECONDS)
+        except TooManyRequests as e:
+            print(f"ERROR: {e}\n")
+            TimeHelper.printCurrentDateTime()
+            print(f"SLEEPING FOR {TimeHelper.secondsToMinutes(ERROR_SLEEP_TIME_SECONDS)} MINUTES...")
+            time.sleep(ERROR_SLEEP_TIME_SECONDS)
