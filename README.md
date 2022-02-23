@@ -7,7 +7,7 @@ determine if the ratio was successful or not.</h2>
 <h4>You can check out the bot's old Twitter account <a href="https://twitter.com/Ratio_Checker">here</a>.</h4>
 <hr>
 
-# How did it work?
+# How does it work?
 
 <h3>This script has 2 phases: <u>harvesting</u> and <u>serving</u>.</h3>
 <h2>Harvesting</h2>
