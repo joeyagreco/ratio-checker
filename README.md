@@ -12,6 +12,7 @@ ratio was successful or not.</h2>
 <h3>This script has 2 phases: <u>harvesting</u> and <u>serving</u>.</h3>
 <h2>Harvesting</h2>
 <h4>During this phase, the script will scour Twitter, looking for tweets that meet the following requirements:
+<br>
 <ul>
     <li>Is a reply</li>
     <li>Has the word "ratio" in it</li>
@@ -23,7 +24,8 @@ If the tweet meets these basic requirements (and a few other more specific requi
 
 <h2>Serving</h2>
 <h4>During this phase, the script will begin to fire off replies to the tweets that have been harvested that meet the
-following requirements.
+following requirements:
+<br>
 <ul>
     <li>Is at least 1 day old</li>
     <li>Is still accessible</li>
